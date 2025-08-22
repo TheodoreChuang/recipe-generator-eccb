@@ -29,7 +29,6 @@ def test_invalid_inputs(kwargs):
     with pytest.raises(ValueError):
         generate_recipe(**kwargs)
 
-
 def test_deterministic_seed():
     r1 = generate_recipe(seed=42)
     r2 = generate_recipe(seed=42)
